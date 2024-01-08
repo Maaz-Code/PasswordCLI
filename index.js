@@ -1,20 +1,32 @@
 #!/usr/bin/env node
 
-import {intro, outro, spinner} from '@clack/prompts';
+import {intro, outro, spinner, text, confirm} from '@clack/prompts';
 import generator from 'generate-password';
 import { setTimeout } from 'node:timers/promises';
 
-intro(`Welcome to PasswordCLI.`); 
+async function main(){
+    intro(`Welcome to PasswordCLI.`); 
 
-const password = generator.generate({
-    length: 10,
-    symbol: true
-})
+    const length = await text({
+        message: 'Enter the length of password: '
+    });
 
-const s = spinner();
-s.start('Generating...');
-await setTimeout(1000);
-s.stop();
+    const value = await confirm({
+        message: 'Do you want to include special characters?'
+    })
 
-console.log("Password: ", password);
-outro(`Thank you!`);
+    const password = generator.generate({
+        length: length,
+        symbols: value
+    })
+
+    const s = spinner();
+    s.start('Generating...');
+    await setTimeout(1000);
+    s.stop();
+
+    console.log("Password: ", password);
+    outro(`Thank you!`);
+}
+
+main().catch(console.error);

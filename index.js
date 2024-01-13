@@ -3,6 +3,7 @@
 import {intro, outro, spinner, text, confirm, isCancel, cancel} from '@clack/prompts';
 import generator from 'generate-password';
 import { setTimeout } from 'node:timers/promises';
+import figlet from 'figlet';
 
 async function main(){
     intro(`Welcome to PasswordCLI.`); 
@@ -16,18 +17,28 @@ async function main(){
         process.exit(0);
     }
 
-    const value = await confirm({
-        message: 'Do you want to include special characters?'
+    const symbols = await confirm({
+        message: 'Do you want to include symbols?'
     })
 
-    if (isCancel(value)) {
+    if (isCancel(symbols)) {
+        cancel('Operation cancelled.');
+        process.exit(0);
+    }
+
+    const numbers = await confirm({
+        message: 'Do you want to include numbers?'
+    })
+
+    if (isCancel(numbers)) {
         cancel('Operation cancelled.');
         process.exit(0);
     }
 
     const password = generator.generate({
         length: length,
-        symbols: value
+        symbols: symbols,
+        numbers: numbers
     })
 
     const s = spinner();
@@ -37,6 +48,20 @@ async function main(){
 
     console.log("Password: ", password);
     outro(`Thank you!`);
+
+    figlet.text(
+    "PasswordCLI",
+    {
+        font: "Standard",
+        },
+        function (err, data) {
+            if (err) {
+                console.log("Something went wrong...");
+                console.dir(err);
+                return;
+            }
+        console.log(data);
+    });
 }
 
 main().catch(console.error);

@@ -4,15 +4,30 @@ import {intro, outro, spinner, text, confirm, isCancel, cancel} from '@clack/pro
 import generator from 'generate-password';
 import { setTimeout } from 'node:timers/promises';
 import figlet from 'figlet';
+import color from 'picocolors';
 
 async function main(){
-    intro(`Welcome to PasswordCLI.`); 
+    intro(`${color.bgBlue('Welcome to PasswordCLI.')}`);
 
     const length = await text({
-        message: 'Enter the length of password: '
+        message: 'Enter the length of password: ',
+        validate(value){
+            if(parseInt(value) < 6){
+                return `Length too short! Must be greater than 5. Please enter again...`;
+            } 
+        }
     });
 
     if (isCancel(length)) {
+        cancel('Operation cancelled.');p
+        process.exit(0);
+    }
+
+    const numbers = await confirm({
+        message: 'Do you want to include numbers?'
+    })
+
+    if (isCancel(numbers)) {
         cancel('Operation cancelled.');
         process.exit(0);
     }
@@ -22,15 +37,6 @@ async function main(){
     })
 
     if (isCancel(symbols)) {
-        cancel('Operation cancelled.');
-        process.exit(0);
-    }
-
-    const numbers = await confirm({
-        message: 'Do you want to include numbers?'
-    })
-
-    if (isCancel(numbers)) {
         cancel('Operation cancelled.');
         process.exit(0);
     }
@@ -46,8 +52,9 @@ async function main(){
     await setTimeout(1000);
     s.stop();
 
-    console.log("Password: ", password);
-    outro(`Thank you!`);
+    console.log(color.bold("Password: "));
+    outro(color.green(password));
+    outro(`${color.bgBlue('Thank You!')}`);
 
     figlet.text(
     "PasswordCLI",

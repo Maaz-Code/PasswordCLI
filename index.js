@@ -19,7 +19,7 @@ async function main(){
     });
 
     if (isCancel(length)) {
-        cancel('Operation cancelled.');p
+        cancel('Operation cancelled.');
         process.exit(0);
     }
 
@@ -41,18 +41,43 @@ async function main(){
         process.exit(0);
     }
 
-    const password = generator.generate({
-        length: length,
-        symbols: symbols,
-        numbers: numbers
+    const multiple = await confirm({
+        message: 'Do you want to generate multiple passwords?'
     })
 
-    const s = spinner();
-    s.start('Generating...');
-    await setTimeout(1000);
-    s.stop();
+    let password;
+    if(multiple){
+        const count = await text({
+            message: 'Enter the number of passwords to be generated: '
+        })
 
-    console.log(color.bold("Password: "));
+        password = generator.generateMultiple(count, {
+            length: length,
+            symbols: symbols,
+            numbers: numbers
+        })
+
+        const s = spinner();
+        s.start('Generating...');
+        await setTimeout(2000);
+        s.stop();
+    
+        console.log(color.bold("Passwords: "));
+    } else{
+        password = generator.generate({
+            length: length,
+            symbols: symbols,
+            numbers: numbers
+        })
+
+        const s = spinner();
+        s.start('Generating...');
+        await setTimeout(1000);
+        s.stop();
+    
+        console.log(color.bold("Password: "));
+    }
+
     outro(color.green(password));
     outro(`${color.bgBlue('Thank You!')}`);
 

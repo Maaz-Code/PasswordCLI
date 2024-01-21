@@ -1,19 +1,20 @@
 #!/usr/bin/env node
-
-import {intro, outro, spinner, text, confirm, isCancel, cancel} from '@clack/prompts';
+ 
+import {intro, outro, spinner, text, confirm, isCancel, cancel, log} from '@clack/prompts';
 import generator from 'generate-password';
 import { setTimeout } from 'node:timers/promises';
 import figlet from 'figlet';
 import color from 'picocolors';
-
+ 
 async function main(){
-    intro(`${color.bgBlue('Welcome to PasswordCLI.')}`);
+    intro(`${color.bgCyan('Welcome to PasswordCLI.')}`);
 
     const length = await text({
         message: 'Enter the length of password: ',
         validate(value){
-            if(parseInt(value) < 6){
-                return `Length too short! Must be greater than 5. Please enter again...`;
+            if(!value) { return `Please enter a value!`};
+            if(parseInt(value) < 5){
+                return `Length too short! Must be greater than 4. Please enter again...`;
             } 
         }
     });
@@ -48,7 +49,13 @@ async function main(){
     let password;
     if(multiple){
         const count = await text({
-            message: 'Enter the number of passwords to be generated: '
+            message: 'Enter the number of passwords to be generated: ',
+            validate(value){
+                if(!value) { return `Please enter a value!`};
+                if(parseInt(value) < 2){
+                    return `Value must be greater than 1.`;
+                } 
+            }
         })
 
         password = generator.generateMultiple(count, {
@@ -74,12 +81,22 @@ async function main(){
         s.start('Generating...');
         await setTimeout(1000);
         s.stop();
-    
+        
         console.log(color.bold("Password: "));
     }
-
-    outro(color.green(password));
-    outro(`${color.bgBlue('Thank You!')}`);
+    
+    if(password == ''){
+        log.error(color.red(`Error generating password! Please check the values entered and try again.`));
+    } else{
+        if(multiple){
+            let multiPasswords = [];
+            multiPasswords = password.join(',  ');
+            log.success(color.green(multiPasswords));
+        }else{
+            log.success(color.green(password));
+        }
+        outro(`${color.bgCyan('Thank You!')}`);
+    }
 
     figlet.text(
     "PasswordCLI",
@@ -95,5 +112,5 @@ async function main(){
         console.log(data);
     });
 }
-
-main().catch(console.error);
+ 
+main().catch(console.error); 
